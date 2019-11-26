@@ -8,7 +8,7 @@ Created on Mon Nov 25 17:31:20 2019
 from distutils.core import setup
 
 
-with open('README.md') as readme:
+with open('README.rst') as readme:
     LONG_DESCRIPTION = readme.read()
 
 
@@ -19,7 +19,6 @@ setup(
   license = 'MIT',
   description = 'Fast Python JSON schema validation and normalization',
   long_description = LONG_DESCRIPTION,
-  long_description_content_type = 'text/markdown',
   author = 'Mikhail Matrosov',
   author_email = 'mm@tardis3d.ru',
   url = 'https://github.com/mikhail-matrosov/pycoercer',
