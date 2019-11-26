@@ -19,6 +19,7 @@ setup(
   license = 'MIT',
   description = 'Fast Python JSON schema validation and normalization',
   long_description = LONG_DESCRIPTION,
+  long_description_content_type = 'text/markdown',
   author = 'Mikhail Matrosov',
   author_email = 'mm@tardis3d.ru',
   url = 'https://github.com/mikhail-matrosov/pycoercer',
