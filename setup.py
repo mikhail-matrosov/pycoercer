@@ -8,9 +8,10 @@ Created on Mon Nov 25 17:31:20 2019
 from distutils.core import setup
 
 
-with open('README.rst') as readme:
-    LONG_DESCRIPTION = readme.read()
-
+try:
+    LONG_DESCRIPTION = open('README.rst').read()
+except:
+    LONG_DESCRIPTION = ''
 
 setup(
   name = 'pycoercer',
