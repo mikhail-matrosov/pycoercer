@@ -23,7 +23,7 @@ setup(
   author = 'Mikhail Matrosov',
   author_email = 'mm@tardis3d.ru',
   url = 'https://github.com/mikhail-matrosov/pycoercer',
-  download_url = 'https://github.com/mikhail-matrosov/pycoercer/releases/download/0.1/pycoercer-0.1.tar.gz',
+  download_url = 'https://github.com/mikhail-matrosov/pycoercer/releases/download/0.1.1/pycoercer-0.1.1.tar.gz',
   keywords = ['validation', 'schema', 'json', 'normalization', 'coercion'],
   install_requires = [],
   platforms=["any"],
