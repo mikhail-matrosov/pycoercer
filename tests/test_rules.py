@@ -61,6 +61,7 @@ def test_coerce():
     v = Validator({
         'n': {'coerce': 'number'},
         's': {'coerce': 'str'},
+        'b': {'coerce': 'bool'},
         'g': {'coerce': 'gender'}
     })
 
@@ -78,12 +79,33 @@ def test_coerce():
     assert v['s']({}) == ('{}', None)
     assert v['s'](None) == ('None', None)
 
+    assert v['b'](True) == (True, None)
+    assert v['b'](1) == (True, None)
+    assert v['b']('Yes') == (True, None)
+    assert v['b']('1.0') == (True, None)
+    assert v['b'](0) == (False, None)
+    assert v['b'](False) == (False, None)
+    assert v['b']('N') == (False, None)
+    assert v['b']({}) == (None, 'Input is not coercible to bool')
+    assert v['b'](5) == (None, 'Input is not coercible to bool')
+    assert v['b']('qwe') == (None, 'Input is not coercible to bool')
+
     assert v['g']('female') == ('female', None)
     assert v['g'](1) == ('male', None)
     assert v['g'](False) == ('female', None)
     assert v['g'](2) == (None, 'Input is not coercible to gender')
     assert v['g']({}) == (None, 'Input is not coercible to gender')
     assert v['g'](None) == (None, 'Input is not coercible to gender')
+
+
+def test_overwrite_default_coercion():
+    v = Validator()
+    v.coerce_bool = lambda val, args: {'foo': True, 'bar': False}[val]
+    v['b'] = {'coerce': 'bool'}
+
+    assert v['b']('foo') == (True, None)
+    assert v['b']('bar') == (False, None)
+    assert v['b']('baz') == (None, 'Input is not coercible to bool')
 
 
 def test_regex():
@@ -363,16 +385,16 @@ def test_allow_unknown():
         'b': {
             'type': 'dict',
             'items': {'x': {}},
-            'allow_unkown': True
+            'allow_unknown': True
         },
         'c': {
             'type': 'dict',
             'items': {'x': {}},
-            'allow_unkown': False
+            'allow_unknown': False
         }
     }
-    vn = Validator(schema, allow_unkown=0)
-    va = Validator(schema, allow_unkown=1)
+    vn = Validator(schema, allow_unknown=0)
+    va = Validator(schema, allow_unknown=1)
 
     for schema in 'abc':
         assert vn[schema]({'x': 3}) == ({'x': 3}, None)
@@ -387,7 +409,7 @@ def test_allow_unknown():
     assert va['c']({'u': 5}) == (None, "Input must not contain keys {'u'}")
 
 
-def test_purge_unkown():
+def test_purge_unknown():
     schema = {
         'a': {
             'type': 'dict',
@@ -396,17 +418,17 @@ def test_purge_unkown():
         'b': {
             'type': 'dict',
             'items': {'x': {}},
-            'purge_unkown': True
+            'purge_unknown': True
         },
         'c': {
             'type': 'dict',
             'items': {'x': {}},
-            'purge_unkown': False
+            'purge_unknown': False
         }
         # TODO: lists
     }
-    vn = Validator(schema, allow_unkown=1, purge_unkown=0)
-    vp = Validator(schema, allow_unkown=1, purge_unkown=1)
+    vn = Validator(schema, allow_unknown=1, purge_unknown=0)
+    vp = Validator(schema, allow_unknown=1, purge_unknown=1)
 
     for schema in 'abc':
         assert vn[schema]({'x': 3}) == ({'x': 3}, None)

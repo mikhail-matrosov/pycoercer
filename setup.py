@@ -16,7 +16,7 @@ except:
 setup(
   name = 'pycoercer',
   packages = ['pycoercer'],
-  version = '0.1',
+  version = '0.1.1',
   license = 'MIT',
   description = 'Fast Python JSON schema validation and normalization',
   long_description = LONG_DESCRIPTION,

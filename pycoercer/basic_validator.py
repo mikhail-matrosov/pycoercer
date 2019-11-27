@@ -85,17 +85,17 @@ def registry_wrapper(f):
 
 class BasicValidator:
     def __init__(self):
-        self._todo = []
         self._schemas = {}
         self._positive_examples = {}
         self._negative_examples = {}
 
         # Used by generated code
-        self.self = self
-        self._indent_str = indent_str
+        self.self = self  # Compiled code can only access self.__dict__
+        self._indent_str = indent_str  # Format multiline errors
 
     def generate_function(self, rules, options, name):
         _locals = self.__dict__
+        self._todo = []
         fname, rules = self.resolve_rules(rules, options)
 
         log(f'# {name}\n# {rules}')
@@ -114,7 +114,7 @@ class BasicValidator:
                 statements = list(cg_rules(self, task, opts))
                 _compile(statements, fname, _locals, task)
 
-        self._todo.clear()
+        del self._todo
 
         return registry_wrapper(func)
 

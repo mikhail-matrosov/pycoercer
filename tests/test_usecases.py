@@ -56,17 +56,17 @@ def test_general():
      'rename': {'type': 'dict',
       'schema': {'val': {'coerce': 'int', 'default': 42, 'rename': 'qwe'}}},
      'anyof_validate': {'anyof': [{'type': 'int'},
-       {'type': 'dict', 'allow_unkown': True},
+       {'type': 'dict', 'allow_unknown': True},
        'str']},
      'oneof_validate': {'oneof': [{'type': 'int'},
-       {'type': 'dict', 'allow_unkown': True},
+       {'type': 'dict', 'allow_unknown': True},
        'str']},
 
      'valuesrules': {'type': 'dict',
       'valuesrules': {'type': 'str'},
-      'allow_unkown': True},
+      'allow_unknown': True},
      'valuesrules2': {
-       'type': 'dict', 'valuesrules': 'str', 'allow_unkown': True}
+       'type': 'dict', 'valuesrules': 'str', 'allow_unknown': True}
     }
 
     schemas['recursive_ptr']['schema']['v'] = schemas['recursive_ptr']

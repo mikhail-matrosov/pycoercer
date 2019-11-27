@@ -82,7 +82,7 @@ def cg_regex(val, _locals):
             f'    return None, " must match regex: {{}}".format({name}.__self__.pattern)']
 
 
-def cg_coerce_int():
+def cg_coerce_int(_locals):
     return ['try: o = int(o)',
             'except:',
             '    try: o = int(float(o))',
@@ -90,13 +90,13 @@ def cg_coerce_int():
             '        return None, " is not coercible to int"']
 
 
-def cg_coerce_float():
+def cg_coerce_float(_locals):
     return ['try: o = float(o)',
             'except:',
             '    return None, " is not coercible to float"']
 
 
-def cg_coerce_number():
+def cg_coerce_number(_locals):
     return ['if not isinstance(o, float):',
             '    try: o = int(o)',
             '    except:',
@@ -105,8 +105,21 @@ def cg_coerce_number():
             '            return None, " is not coercible to number"']
 
 
-def cg_coerce_str():
+def cg_coerce_str(_locals):
     yield 'o = str(o)'
+
+
+bool_map = {"0": False, "0.0": False, "false": False, "no": False, "n": False,
+    "1": True, "1.0": True, "true": True, "yes": True, "y": True
+}
+
+
+def cg_coerce_bool(_locals):
+    _locals['bool_map'] = bool_map
+    return ['try:',
+            '    o = bool_map[str(o).lower()]',
+            'except KeyError:',
+            '    return None, " is not coercible to bool"']
 
 
 def cg_map(val, _locals):
@@ -143,10 +156,9 @@ def cg_one_of(names):
     f'    return None, " must satisfy exactly one of {N} rules:{fmt}".format(*fmt)']
 
 
-def cg_coerce(name, input_code='o'):
-    try:
-        return globals()['cg_coerce_'+name]()
-    except KeyError:
+def cg_coerce(self, name, input_code='o'):
+    _locals = self.__dict__
+    if 'coerce_'+name in _locals or 'cg_coerce_'+name not in globals():
         return [
          'try:',
         f'    o = self.coerce_{name}({input_code}, args)',
@@ -154,16 +166,18 @@ def cg_coerce(name, input_code='o'):
         f'    if not hasattr(self, "coerce_{name}"):',
         f'        raise AttributeError("Validator has no attribute coerce_{name}")',
         f'    return None, " is not coercible to {name}"']
+    else:
+        return globals()['cg_coerce_'+name](_locals)
 
 
-def cg_nullable(if_null, post_coerce):
+def cg_nullable(self, if_null, post_coerce):
     if isinstance(if_null, str) and re.match('{.+}', if_null):
         if_null = f'args[{as_code(if_null[1:-1])}]'
     else:
         if_null = as_code(if_null)
     yield 'if o is None:'
     if post_coerce:
-        yield from cg_coerce(post_coerce, if_null)
+        yield from cg_coerce(self, post_coerce, if_null)
     else:
         yield f'    return {if_null}, None'
 
@@ -190,25 +204,25 @@ def cg_rules(self, rules, options):
         self._negative_examples[rhash] = (rules, rget('negative_examples'))
 
     if rget('nullable') or rget("if_null"):
-        yield from cg_nullable(rget("if_null"), rget('post_coerce'))
+        yield from cg_nullable(self, rget("if_null"), rget('post_coerce'))
 
     if 'type' in rules:
         yield from cg_type(rules['type'])
 
     v = rget('coerce')
     if v:
-        yield from cg_coerce(v)
+        yield from cg_coerce(self, v)
 
     v = rget('regex')
     if v:
         yield from cg_regex(v, _locals)
 
-    purge_unkown = rget('purge_unkown', options.purge_unkown)
+    purge_unknown = rget('purge_unknown', options.purge_unknown)
     has_schema = any(map(rget, 'items values keys pattern_items'.split()))
 
     rtype = rget('type', rget('coerce'))
     if rtype in {'dict', 'list'} or has_schema:
-        if rtype == 'dict' and purge_unkown:
+        if rtype == 'dict' and purge_unknown:
             yield 'o, orig = {}, o'
         else:
             yield 'o, orig = o.copy(), o'
@@ -242,7 +256,7 @@ def cg_rules(self, rules, options):
 
     v = rget('post_coerce')
     if v:
-        yield from cg_coerce(v)
+        yield from cg_coerce(self, v)
 
 
 def cg_default(k, k_to, rules, require_all):
@@ -375,10 +389,10 @@ def cg_dict_items(self, items=None, pattern_items=None, keys=None, values=None,
         if keys is not None or values is not None:
             yield from indent(cg_rule_key_value(self, keys, values))
 
-        if not options.allow_unkown:
+        if not options.allow_unknown:
             yield '    return None, f" must not contain key {k}"'
 
-    elif not options.allow_unkown:
+    elif not options.allow_unknown:
         kk_name = store_in_locals(known_keys, _locals)
         yield from [
         f'forbidden_keys = set(orig) - {kk_name}',

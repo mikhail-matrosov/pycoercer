@@ -10,15 +10,15 @@ from pycoercer.basic_validator import BasicValidator
 
 class Options():
     def __init__(self,
-                 allow_unkown=True,
-                 purge_unkown=False,
+                 allow_unknown=True,
+                 purge_unknown=False,
                  require_all=False,
                  break_loops=True,
                  load_as_jsonschema=False,
                  validate_schemas=True,
                  **_):
-        self.allow_unkown = allow_unkown
-        self.purge_unkown = purge_unkown
+        self.allow_unknown = allow_unknown
+        self.purge_unknown = purge_unknown
         self.require_all = require_all
         self.break_loops = break_loops  # Makes Phimera ~10-15% slower
         self.load_as_jsonschema = load_as_jsonschema
@@ -96,8 +96,8 @@ pycoercer_schema = {
             'examples': {'type': 'list'},
             'negative_examples': {'type': 'list'},
 
-            'allow_unkown': 'bool',
-            'purge_unkown': 'bool',
+            'allow_unknown': 'bool',
+            'purge_unknown': 'bool',
 
             'rename': 'str',
             'synonyms': {'type': 'list'},
@@ -126,7 +126,7 @@ pycoercer_schema = {
             'coerce': 'str',
             'map': {
                 'type': 'dict',
-                'allow_unkown': True
+                'allow_unknown': True
             },
             'enum': {
                 'type': 'list',
@@ -192,8 +192,8 @@ pycoercer_schema = {
 
 _pcsv = Validator(
     pycoercer_schema,
-    allow_unkown=False,
-    purge_unkown=False,
+    allow_unknown=False,
+    purge_unknown=False,
     require_all=False,
     break_loops=True,
     load_as_jsonschema=False,
